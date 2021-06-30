@@ -10,6 +10,9 @@ exports.onRowCreated = functions.firestore.document("events/{id}")
 .onCreate(async (snap, context) => {
     const eventId = context.params['id'];
     const Context = snap._fieldsProto;
+    modules.getToken(cb => {
+        console.log(cb);
+    })
 
     const pass = await PostValidation(Context);
 });
