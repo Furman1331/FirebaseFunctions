@@ -4,7 +4,7 @@ service cloud.firestore {
     match /{document=**} {
       allow read, write: if
           request.time < timestamp.date(2025, 2, 4);
-          
+
     }
     // match /todo/{todo}{
     // 	allow write: if eventType != null;

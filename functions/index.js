@@ -1,11 +1,14 @@
+// https://stackoverflow.com/questions/66416001/parsing-error-unexpected-token-when-trying-to-deploy-firebase-cloud-function
+
 const functions = require("firebase-functions");
-const axios = require('axios');
-const ValidationError = require('joi').ValidationError;
+const axios = require("axios");
+const admin = require('firebase-admin');
+admin.initializeApp();
 
 // MODULES
-const Validation = require('./validation/Validation');
+const Validation = require("./validation/Validation");
 
-const modules = require('./modules/token.js');
+const modules = require("./modules/token.js");
 
 // Here create a evenet listener to firebase database.
 console.log(`Starting application`);
@@ -19,11 +22,7 @@ exports.onRowCreated = functions.firestore.document("events/{id}")
                 : console.log(`Falied to get callback from validataion`);
         }, result);
     } catch (e) {
-        if(e instanceof ValidationError) {
-            if(typeof e.details[0] !== "undefined" && typeof e.details[0].context !== "undefined") {
-                // TODO
-            }
-        }
+        console.log(e);
     }
 });
 
@@ -55,6 +54,6 @@ function sendPost(data) {
             console.log(response);
         }).catch((response) => {
             console.log(response);
-        })
-    })
-}
+        });
+    });
+};
