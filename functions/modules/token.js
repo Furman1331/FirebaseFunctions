@@ -52,7 +52,9 @@ async function getNewToken(cb) {
 
         cb({status: true});
     }).catch((data) => {
-        cb({status: false, data: data.response.data});
+        data 
+        ? cb({status: false, data: data.response.data})
+        : cb({status: false, data: 'Cannot connect to API server.'})
     })
 }
 
