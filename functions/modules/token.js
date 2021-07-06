@@ -11,8 +11,8 @@ module.exports.getToken = async (cb) => {
         // Else check if refresh token is stock
         : Token.refresh
             // Check if refresh token exist and if not generate new token
-            ? getTokenFromRefresh((data) => cb(data.status == true ? Token.token : data))
-            : getNewToken((data) => cb(data.status == true ? Token.token : data));
+            ? getTokenFromRefresh((data) => cb(data.status == true ? Token.token : data.status))
+            : getNewToken((data) => cb(data.status == true ? Token.token : data.status));
     })
 }
 
@@ -52,9 +52,9 @@ async function getNewToken(cb) {
 
         cb({status: true});
     }).catch((data) => {
-        data 
-        ? cb({status: false, data: data.response.data})
-        : cb({status: false, data: 'Cannot connect to API server.'})
+        data.response
+            ? cb({status: false, data: data.response.data})
+            : cb({status: false, data: 'Cannot connect to API server.'})
     })
 }
 
