@@ -77,7 +77,7 @@ function getTokenFromRefresh(cb) {
                 ? cb({status: true})
                 : getNewToken((data) => cb(data));
         })
-    }).catch(() => {
+    }).catch((e) => {
         getNewToken((data) => cb(data));
     })
 }

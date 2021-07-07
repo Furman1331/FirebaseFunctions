@@ -2,11 +2,9 @@ const Joi = require('joi');
 
 const Validation = {
     eventPost: Joi.object().keys({
-        // TODO: Check if valid strings is good.
+        employerId: Joi.number().required(),
         typeId: Joi.string().required().valid('work start', 'break start', 'break finish', 'temp out start', 'temp out finish', 'work finish', 'comment'),
-        // TODO: Check if valid strings is good.
         sourceId: Joi.string().required().valid('reader', 'www', 'email', 'sms', 'reader - smarthphone', 'application - smartphone', 'panel'),
-        // TODO: change format to dateTime.
         datetime: Joi.date().required(),
         // // datetimeReal: Joi.string().required(),
         identificator: Joi.string().required(),
@@ -15,25 +13,76 @@ const Validation = {
         // locationGps: Joi.string(),
         // gps: Joi.string(),
         // comment: Joi.string()
+        eventID: Joi.any(), // Need only for pass a validate.
     })
 }
 
-module.exports.eventValidation = async (cb, array) => {
-    try {
-        console.log(array);
-        if(typeof array.datetime.seconds == 'number') {
-            array.datetime = new Date((array.datetime.seconds * 1000) + 7200000); // Change format from timeStamp to dateTime.
-            const validateData = await Validation.eventPost.validateAsync(array);
+// Validation for event post.
+module.exports.eventValidation = (elements, content) => new Promise((res, rej) => {
+    prepareForValidate(async result => {
+        try {
+            const validateData = await Validation.eventPost.validateAsync(result);
 
-            cb(validateData);
-        } else {
-            console.log(`dateTime is valid.`)
-        }
-    } catch(e) {
-        if(e instanceof Joi.ValidationError) {
-            if(typeof e.details[0] !== "undefined" && typeof e.details[0].context !== "undefined") {
-                console.log(`[Error][Validate] ${e.details[0].context.key} is valid, check if data included is correct!`);
+            res(validateData);
+        } catch(e) {
+            if(e instanceof Joi.ValidationError) {
+                if(typeof e.details[0] !== "undefined" && typeof e.details[0].context !== "undefined") {
+                    rej(`[Error][Validate] ${e.details[0].context.key} is valid, check if data included is correct!`);
+                }
             }
         }
+    }, elements, content)
+});
+
+function prepareForValidate(cb, snap, context) {
+    var result = {};
+
+    // Element from snap
+    for (const [name, element] of Object.entries(snap)) {
+        TransformName(newName => {
+            var value = element[Object.keys(element)];
+            if (newName == 'datetime') {
+                value = new Date((value.seconds * 1000) + 7200000);
+            }
+            result[newName] = value;
+        }, name)
+    }
+
+    // Element from content.
+    for (const [name, value] of Object.entries(context.params)) {
+        TransformName(newName => {
+            result[newName] = value;
+        }, name)
+    }
+
+    cb(result);
+}
+
+// THIS FUNCTION RETURN NAMES FROM DATA TRANSFORMER AND REVERSE.
+async function TransformName(cb, name) {
+    switch(name) {
+        case 'type' :
+            cb('typeId');
+            break;
+        case 'typeId':
+            cb('type');
+            break;
+        case 'source':
+            cb('sourceId');
+            break;
+        case 'sourceId':
+            cb('source');
+            break;
+        case 'dateTime':
+            cb('datetime');
+            break;
+        case 'datetime':
+            cb('dateTime');
+            break;
+        case 'employerID':
+            cb('employerId');
+            break;
+        default:
+            cb(name);
     }
 }
