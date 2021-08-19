@@ -6,13 +6,13 @@ const Validation = {
         typeId: Joi.string().required().valid('work start', 'break start', 'break finish', 'temp out start', 'temp out finish', 'work finish', 'comment'),
         sourceId: Joi.string().required().valid('reader', 'www', 'email', 'sms', 'reader - smarthphone', 'application - smartphone', 'panel'),
         datetime: Joi.date().required(),
-        // // datetimeReal: Joi.string().required(),
+        // datetimeReal: Joi.string().required(),
         identificator: Joi.string().required(),
         // deviceCode: Joi.string(),
         // location: Joi.string(),
         // locationGps: Joi.string(),
         // gps: Joi.string(),
-        // comment: Joi.string()
+        comment: Joi.string(),
         eventID: Joi.any(), // Need only for pass a validate.
     })
 }
@@ -39,13 +39,23 @@ function prepareForValidate(cb, snap, context) {
 
     // Element from snap
     for (const [name, element] of Object.entries(snap)) {
-        TransformName(newName => {
-            var value = element[Object.keys(element)];
-            if (newName == 'datetime') {
-                value = new Date((value.seconds * 1000) + 7200000);
+        if (Object.keys(element)[0] == 'mapValue') {
+            for(const [mapName, mapElement] of Object.entries(element[Object.keys(element)[0]].fields)) {
+                for(const value of Object.entries(mapElement)){
+                    TransformName(newName => {
+                        result[newName] = value[1];
+                    }, mapName)
+                }
             }
-            result[newName] = value;
-        }, name)
+        } else {
+            TransformName(newName => {
+                var value = element[Object.keys(element)];
+                if (newName == 'datetime') {
+                    value = new Date((value.seconds * 1000) + 7200000);
+                }
+                result[newName] = value;
+            }, name)
+        }
     }
 
     // Element from content.
@@ -55,6 +65,7 @@ function prepareForValidate(cb, snap, context) {
         }, name)
     }
 
+    console.log(result);
     cb(result);
 }
 

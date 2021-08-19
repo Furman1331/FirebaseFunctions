@@ -28,6 +28,10 @@ module.exports = {
     "require-jsdoc": ["warn"],
     "no-multi-spaces": ["warn"],
     "no-extra-semi": ["warn"],
-    "no-var": ["warn"]
+    "no-var": ["warn"],
+    "switch-colon-spacing": ["warn"],
+    "new-cap": ["warn"],
+    "prefer-promise-reject-errors": ["warn"],
+    "spaced-comment": ["warn"],
   },
 };

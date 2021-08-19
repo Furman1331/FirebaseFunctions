@@ -10,6 +10,7 @@ const database = admin.firestore();
 
 // Node.js Untils.
 const axios = require("axios");
+require('dotenv').config();
 
 // Modules
 const Validation = require("./validation/Validation.js");
@@ -34,7 +35,7 @@ function sendPost(data) {
         token ?
             axios({
                 method:"POST",
-                url: "http://localhost:8000/api/events",
+                url: process.env.EVENT_POST_URL,
                 data: data,
                 headers: {
                     "accept": "application/ld+json",
